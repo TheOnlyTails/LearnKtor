@@ -33,7 +33,8 @@ dependencies {
 
 	implementation("io.ktor:ktor-gson:$ktorVersion")
 
-	implementation("org.jetbrains.exposed:exposed:$exposedVersion")
+	implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
+	implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
 	implementation("com.h2database:h2:$h2Version")
 
 	testImplementation("io.ktor:ktor-server-tests:$ktorVersion")

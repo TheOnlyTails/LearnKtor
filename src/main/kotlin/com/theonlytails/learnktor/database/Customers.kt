@@ -6,7 +6,7 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 
 object Customers : Table() {
-	val id = integer("id").autoIncrement().primaryKey()
+	val id = integer("id").autoIncrement()
 	val firstName = varchar("firstName", 100)
 	val lastName = varchar("lastName", 100)
 	val email = varchar("email", 100)
@@ -14,10 +14,9 @@ object Customers : Table() {
 	override val primaryKey = PrimaryKey(id, name = "id")
 }
 
-class CustomersDao(val db: Database) : Dao {
+class CustomersDao(private val db: Database) : Dao {
 	override fun init() = transaction(db) {
 		SchemaUtils.create(Customers)
-		SchemaUtils.createMissingTablesAndColumns(Customers)
 	}
 
 	override fun createCustomer(firstName: String, lastName: String, email: String) {
