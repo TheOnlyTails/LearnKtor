@@ -22,12 +22,12 @@ fun Route.customerRouting(dao: CustomersDao) {
 
 		get("{id}") {
 			val id = call.parameters["id"] ?: return@get call.respondText(
-				"Missing or malformed ID",
+				"Missing or malformed ID: ${call.parameters["id"]}",
 				status = HttpStatusCode.BadRequest
 			)
 
 			val customer = dao.getCustomer(id.toInt()) ?: return@get call.respondText(
-				"Customer not found.",
+				"Customer $id not found.",
 				status = HttpStatusCode.NotFound
 			)
 
@@ -39,26 +39,43 @@ fun Route.customerRouting(dao: CustomersDao) {
 
 			dao.createCustomer(customer.firstName, customer.lastName, customer.email)
 
-			call.respondText("Customer stored correctly", status = HttpStatusCode.Accepted)
+			call.respondText("Customer ${customer.id} stored correctly", status = HttpStatusCode.Accepted)
 		}
 
 		put {
 			val customer = call.receive<Customer>()
 
-			dao.updateCustomer(customer.id, customer.firstName, customer.lastName, customer.email)
+			if (dao.getCustomer(customer.id) != null) {
+				dao.updateCustomer(customer.id, customer.firstName, customer.lastName, customer.email)
 
-			call.respondText("Customer updated correctly", status = HttpStatusCode.Accepted)
+				call.respondText("Customer ${customer.id} updated correctly", status = HttpStatusCode.Accepted)
+			} else {
+				call.respondText("Customer ${customer.id} not found.", status = HttpStatusCode.NotFound)
+			}
+		}
+
+		delete {
+			if (dao.getAllCustomers().isNotEmpty()) {
+				dao.getAllCustomers().forEach { dao.deleteCustomer(it.id) }
+				call.respondText("All customers removed successfully", status = HttpStatusCode.Accepted)
+			} else {
+				call.respondText("No customers found.", status = HttpStatusCode.NotFound)
+			}
 		}
 
 		delete("{id}") {
 			val id = call.parameters["id"]
 
 			if (id != null) {
-				dao.deleteCustomer(id.toInt())
-				call.respondText("Customer removed successfully", status = HttpStatusCode.Accepted)
+				if (dao.getCustomer(id.toInt()) != null) {
+					dao.deleteCustomer(id.toInt())
+					call.respondText("Customer $id removed successfully", status = HttpStatusCode.Accepted)
+				} else {
+					call.respondText("Customer $id not found.", status = HttpStatusCode.NotFound)
+				}
 			} else {
 				call.respondText(
-					"Missing or malformed ID",
+					"Missing or malformed ID $id",
 					status = HttpStatusCode.BadRequest
 				)
 			}
