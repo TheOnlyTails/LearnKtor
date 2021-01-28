@@ -1,7 +1,7 @@
 package com.theonlytails.learnktor.routes
 
-import com.theonlytails.learnktor.database.CustomersDao
-import com.theonlytails.learnktor.models.Customer
+import com.theonlytails.learnktor.database.UserDatabase
+import com.theonlytails.learnktor.models.User
 import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.http.HttpStatusCode
@@ -10,13 +10,13 @@ import io.ktor.response.respond
 import io.ktor.response.respondText
 import io.ktor.routing.*
 
-fun Route.customerRouting(dao: CustomersDao) {
-	route("/customer") {
+fun Route.userRouting(database: UserDatabase) {
+	route("/User") {
 		get {
-			if (dao.getAllCustomers().isNotEmpty()) {
-				call.respond(dao.getAllCustomers())
+			if (database.getAllUsers().isNotEmpty()) {
+				call.respond(database.getAllUsers())
 			} else {
-				call.respondText("No customers found.", status = HttpStatusCode.NotFound)
+				call.respondText("No users found.", status = HttpStatusCode.NotFound)
 			}
 		}
 
@@ -26,40 +26,40 @@ fun Route.customerRouting(dao: CustomersDao) {
 				status = HttpStatusCode.BadRequest
 			)
 
-			val customer = dao.getCustomer(id.toInt()) ?: return@get call.respondText(
-				"Customer $id not found.",
+			val user = database.getUser(id.toInt()) ?: return@get call.respondText(
+				"User $id not found.",
 				status = HttpStatusCode.NotFound
 			)
 
-			call.respond(customer)
+			call.respond(user)
 		}
 
 		post {
-			val customer = call.receive<Customer>()
+			val user = call.receive<User>()
 
-			dao.createCustomer(customer.firstName, customer.lastName, customer.email)
+			database.createUser(user.firstName, user.lastName, user.email)
 
-			call.respondText("Customer ${customer.id} stored correctly", status = HttpStatusCode.Accepted)
+			call.respondText("User ${user.id} stored correctly", status = HttpStatusCode.Accepted)
 		}
 
 		put {
-			val customer = call.receive<Customer>()
+			val user = call.receive<User>()
 
-			if (dao.getCustomer(customer.id) != null) {
-				dao.updateCustomer(customer.id, customer.firstName, customer.lastName, customer.email)
+			if (database.getUser(user.id) != null) {
+				database.updateUser(user.id, user.firstName, user.lastName, user.email)
 
-				call.respondText("Customer ${customer.id} updated correctly", status = HttpStatusCode.Accepted)
+				call.respondText("User ${user.id} updated correctly", status = HttpStatusCode.Accepted)
 			} else {
-				call.respondText("Customer ${customer.id} not found.", status = HttpStatusCode.NotFound)
+				call.respondText("User ${user.id} not found.", status = HttpStatusCode.NotFound)
 			}
 		}
 
 		delete {
-			if (dao.getAllCustomers().isNotEmpty()) {
-				dao.getAllCustomers().forEach { dao.deleteCustomer(it.id) }
-				call.respondText("All customers removed successfully", status = HttpStatusCode.Accepted)
+			if (database.getAllUsers().isNotEmpty()) {
+				database.getAllUsers().forEach { database.deleteUser(it.id) }
+				call.respondText("All users removed successfully", status = HttpStatusCode.Accepted)
 			} else {
-				call.respondText("No customers found.", status = HttpStatusCode.NotFound)
+				call.respondText("No users found.", status = HttpStatusCode.NotFound)
 			}
 		}
 
@@ -67,11 +67,11 @@ fun Route.customerRouting(dao: CustomersDao) {
 			val id = call.parameters["id"]
 
 			if (id != null) {
-				if (dao.getCustomer(id.toInt()) != null) {
-					dao.deleteCustomer(id.toInt())
-					call.respondText("Customer $id removed successfully", status = HttpStatusCode.Accepted)
+				if (database.getUser(id.toInt()) != null) {
+					database.deleteUser(id.toInt())
+					call.respondText("User $id removed successfully", status = HttpStatusCode.Accepted)
 				} else {
-					call.respondText("Customer $id not found.", status = HttpStatusCode.NotFound)
+					call.respondText("User $id not found.", status = HttpStatusCode.NotFound)
 				}
 			} else {
 				call.respondText(
@@ -83,8 +83,8 @@ fun Route.customerRouting(dao: CustomersDao) {
 	}
 }
 
-fun Application.registerCustomerRoutes(dao: CustomersDao) {
+fun Application.registerUserRoutes(database: UserDatabase) {
 	routing {
-		customerRouting(dao)
+		userRouting(database)
 	}
 }

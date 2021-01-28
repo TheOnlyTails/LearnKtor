@@ -1,8 +1,8 @@
 package com.theonlytails.learnktor
 
-import com.theonlytails.learnktor.database.Customers
-import com.theonlytails.learnktor.database.CustomersDao
-import com.theonlytails.learnktor.routes.registerCustomerRoutes
+import com.theonlytails.learnktor.database.UserDatabase
+import com.theonlytails.learnktor.database.Users
+import com.theonlytails.learnktor.routes.registerUserRoutes
 import io.ktor.application.install
 import io.ktor.features.CallLogging
 import io.ktor.features.ContentNegotiation
@@ -14,7 +14,7 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 
-val database = CustomersDao(Database.connect("jdbc:h2:./database/test", "org.h2.Driver"))
+val database = UserDatabase(Database.connect("jdbc:h2:./database/test", "org.h2.Driver"))
 
 fun main() {
 	embeddedServer(Netty, port = 8080) {
@@ -28,11 +28,11 @@ fun main() {
 		database.init()
 
 		transaction {
-			SchemaUtils.create(Customers)
+			SchemaUtils.create(Users)
 		}
 
 		install(Routing) {
-			registerCustomerRoutes(database)
+			registerUserRoutes(database)
 		}
 	}.start(wait = true)
 }
