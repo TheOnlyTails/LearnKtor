@@ -14,7 +14,7 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
 
-val database = CustomersDao(Database.connect("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", "org.h2.Driver"))
+val database = CustomersDao(Database.connect("jdbc:h2:./database/test", "org.h2.Driver"))
 
 fun main() {
 	embeddedServer(Netty, port = 8080) {
