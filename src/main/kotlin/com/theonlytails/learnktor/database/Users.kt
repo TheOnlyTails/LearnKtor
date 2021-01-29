@@ -2,11 +2,11 @@ package com.theonlytails.learnktor.database
 
 import com.theonlytails.learnktor.database.dao.Dao
 import com.theonlytails.learnktor.models.User
+import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 
-object Users : Table() {
-	val id = integer("id").autoIncrement()
+object Users : IntIdTable() {
 	val firstName = varchar("firstName", 100)
 	val lastName = varchar("lastName", 100)
 	val email = varchar("email", 100)
@@ -19,14 +19,18 @@ class UserDatabase(private val db: Database) : Dao {
 		SchemaUtils.create(Users)
 	}
 
-	override fun createUser(firstName: String, lastName: String, email: String) {
+	override fun createUser(firstName: String, lastName: String, email: String): Int {
+		var id = 0
+
 		transaction(db) {
-			Users.insert {
+			id = Users.insertAndGetId {
 				it[this.firstName] = firstName
 				it[this.lastName] = lastName
 				it[this.email] = email
-			}
+			}.value
 		}
+
+		return id
 	}
 
 	override fun updateUser(id: Int, firstName: String, lastName: String, email: String) {
@@ -47,13 +51,13 @@ class UserDatabase(private val db: Database) : Dao {
 
 	override fun getUser(id: Int) = transaction(db) {
 		Users.select { Users.id eq id }.map {
-			User(it[Users.id], it[Users.firstName], it[Users.lastName], it[Users.email])
+			User(it[Users.id].value, it[Users.firstName], it[Users.lastName], it[Users.email])
 		}.singleOrNull()
 	}
 
 	override fun getAllUsers() = transaction(db) {
 		Users.selectAll().map {
-			User(it[Users.id], it[Users.firstName], it[Users.lastName], it[Users.email])
+			User(it[Users.id].value, it[Users.firstName], it[Users.lastName], it[Users.email])
 		}
 	}
 

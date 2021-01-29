@@ -5,7 +5,7 @@ import java.io.Closeable
 
 interface Dao : Closeable {
 	fun init()
-	fun createUser(firstName: String, lastName: String, email: String)
+	fun createUser(firstName: String, lastName: String, email: String): Int
 	fun updateUser(id: Int, firstName: String, lastName: String, email: String)
 	fun deleteUser(id: Int)
 	fun getUser(id: Int): User?

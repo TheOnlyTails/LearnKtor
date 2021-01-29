@@ -11,7 +11,7 @@ import io.ktor.response.respondText
 import io.ktor.routing.*
 
 fun Route.userRouting(database: UserDatabase) {
-	route("/User") {
+	route("/user") {
 		get {
 			if (database.getAllUsers().isNotEmpty()) {
 				call.respond(database.getAllUsers())
