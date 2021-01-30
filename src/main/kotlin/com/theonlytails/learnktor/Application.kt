@@ -1,7 +1,9 @@
 package com.theonlytails.learnktor
 
 import com.theonlytails.learnktor.database.UserDatabase
+import com.theonlytails.learnktor.html.registerCssRouting
 import com.theonlytails.learnktor.routes.registerUserRoutes
+import io.ktor.application.Application
 import io.ktor.application.install
 import io.ktor.features.CallLogging
 import io.ktor.features.ContentNegotiation
@@ -14,19 +16,25 @@ import org.jetbrains.exposed.sql.Database
 val database = UserDatabase(Database.connect("jdbc:h2:./database/test", "org.h2.Driver"))
 
 fun main() {
-	embeddedServer(Netty, port = 8080) {
-		install(CallLogging)
-		install(ContentNegotiation) {
-			gson {
-				setPrettyPrinting()
-			}
+	embeddedServer(
+		Netty,
+		port = 8080,
+		module = Application::module
+	).start(wait = true)
+}
+
+fun Application.module() {
+	install(CallLogging)
+	install(ContentNegotiation) {
+		gson {
+			setPrettyPrinting()
 		}
+	}
 
-		database.init()
+	database.init()
 
-		install(Routing) {
-			registerUserRoutes(database)
-		}
-
-	}.start(wait = true)
+	install(Routing) {
+		registerUserRoutes(database)
+		registerCssRouting()
+	}
 }

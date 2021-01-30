@@ -32,6 +32,10 @@ dependencies {
 	implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:$kotlinSerialization")
 
 	implementation("io.ktor:ktor-gson:$ktorVersion")
+	implementation("io.ktor:ktor-html-builder:$ktorVersion")
+	implementation("org.jetbrains:kotlin-css:1.0.0-pre.144-kotlin-$kotlinVersion")
+	implementation("org.jetbrains:kotlin-css-jvm:$1.0.0-pre.93-kotlin-1.4.20")
+
 
 	implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
 	implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")

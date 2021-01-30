@@ -1,37 +1,44 @@
 package com.theonlytails.learnktor.routes
 
 import com.theonlytails.learnktor.database.UserDatabase
+import com.theonlytails.learnktor.html.createUser
+import com.theonlytails.learnktor.html.createUserList
 import com.theonlytails.learnktor.models.User
 import io.ktor.application.Application
 import io.ktor.application.call
+import io.ktor.html.respondHtml
 import io.ktor.http.HttpStatusCode
 import io.ktor.request.receive
-import io.ktor.response.respond
+import io.ktor.response.respondRedirect
 import io.ktor.response.respondText
 import io.ktor.routing.*
+import kotlinx.html.body
+import kotlinx.html.div
 
 fun Route.userRouting(database: UserDatabase) {
 	route("/user") {
+		get("/") { call.respondRedirect("/user") }
 		get {
 			if (database.getAllUsers().isNotEmpty()) {
-				call.respond(database.getAllUsers())
+				call.respondHtml {
+					createUserList(database.getAllUsers())
+				}
+
 			} else {
-				call.respondText("No users found.", status = HttpStatusCode.NotFound)
+				call.respondText("No users found.",
+					status = HttpStatusCode.NotFound)
 			}
 		}
 
 		get("{id}") {
-			val id = call.parameters["id"] ?: return@get call.respondText(
-				"Missing or malformed ID: ${call.parameters["id"]}",
-				status = HttpStatusCode.BadRequest
-			)
+			val id = call.parameters["id"]
+				?: return@get call.respondText("Missing or malformed ID: ${call.parameters["id"]}",
+					status = HttpStatusCode.BadRequest)
 
-			val user = database.getUser(id.toInt()) ?: return@get call.respondText(
-				"User $id not found.",
-				status = HttpStatusCode.NotFound
-			)
+			val user = database.getUser(id.toInt()) ?: return@get call.respondText("User $id not found.",
+				status = HttpStatusCode.NotFound)
 
-			call.respond(user)
+			call.respondHtml { body { div { createUser(user) } } }
 		}
 
 		post {
@@ -57,7 +64,7 @@ fun Route.userRouting(database: UserDatabase) {
 		delete {
 			if (database.getAllUsers().isNotEmpty()) {
 				database.getAllUsers().forEach { database.deleteUser(it.id) }
-				call.respondText("All users removed successfully", status = HttpStatusCode.Accepted)
+				call.respondText("All users removed successfully.", status = HttpStatusCode.Accepted)
 			} else {
 				call.respondText("No users found.", status = HttpStatusCode.NotFound)
 			}
@@ -69,15 +76,13 @@ fun Route.userRouting(database: UserDatabase) {
 			if (id != null) {
 				if (database.getUser(id.toInt()) != null) {
 					database.deleteUser(id.toInt())
-					call.respondText("User $id removed successfully", status = HttpStatusCode.Accepted)
+
+					call.respondText("User $id removed successfully.", status = HttpStatusCode.Accepted)
 				} else {
 					call.respondText("User $id not found.", status = HttpStatusCode.NotFound)
 				}
 			} else {
-				call.respondText(
-					"Missing or malformed ID $id",
-					status = HttpStatusCode.BadRequest
-				)
+				call.respondText("Missing or malformed ID: $id", status = HttpStatusCode.BadRequest)
 			}
 		}
 	}
