@@ -8,20 +8,24 @@ import io.ktor.response.respondText
 import io.ktor.routing.get
 import io.ktor.routing.route
 import io.ktor.routing.routing
-import kotlinx.css.CSSBuilder
-import kotlinx.css.fontFamily
-import kotlinx.css.fontWeight
+import kotlinx.css.*
 
 fun Application.registerCssRouting() {
 	routing {
 		route("/styles.css") {
 			get {
 				call.respondCss {
-					kotlinx.css.div {
+					body {
+						backgroundColor = Color("#1f1f23")
+						color = Color("#e8e8e9")
+					}
+
+					div {
 						fontFamily = "sans-serif"
 					}
-					kotlinx.css.h2 {
-						fontWeight = kotlinx.css.FontWeight.normal
+
+					h2 {
+						fontWeight = FontWeight.normal
 					}
 				}
 			}

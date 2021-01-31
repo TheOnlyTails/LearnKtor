@@ -10,13 +10,15 @@ fun DIV.createUser(user: User) {
 
 	a {
 		title = "ID: ${user.id}"
-		+"${user.firstName} ${user.lastName} "
+		+"${user.firstName} ${user.lastName} ("
 	}
 
 	a("mailto:${user.email}") {
 		title = "ID: ${user.id}"
-		+"(${user.email})"
+		+user.email
 	}
+
+	a { +")" }
 }
 
 fun HTML.createUserList(users: List<User>) {
